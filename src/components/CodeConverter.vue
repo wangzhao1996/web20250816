@@ -220,16 +220,42 @@
         </button>
 
         <button
-          :disabled="!inputText || !isValidUrl(inputText)"
+          :disabled="!inputText || !isValidUrl(inputText) || isValidJson(inputText)"
           @click="handleParseLink"
           :class="[
             'font-medium px-4 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-out border-0 focus:ring-4 text-sm',
-            (inputText && isValidUrl(inputText))
+            (inputText && isValidUrl(inputText) && !isValidJson(inputText))
               ? 'btn-warning'
               : 'btn-disabled'
           ]"
         >
           解析链接
+        </button>
+
+        <button
+          :disabled="!inputText || !isValidJson(inputText)"
+          @click="handleFormatJson"
+          :class="[
+            'font-medium px-4 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-out border-0 focus:ring-4 text-sm',
+            (inputText && isValidJson(inputText))
+              ? 'btn-info'
+              : 'btn-disabled'
+          ]"
+        >
+          JSON格式化
+        </button>
+
+        <button
+          :disabled="!inputText || !isValidJson(inputText)"
+          @click="handleCompressJson"
+          :class="[
+            'font-medium px-4 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-out border-0 focus:ring-4 text-sm',
+            (inputText && isValidJson(inputText))
+              ? 'btn-info'
+              : 'btn-disabled'
+          ]"
+        >
+          JSON压缩
         </button>
       </div>
 
@@ -264,7 +290,7 @@
           :show-after="500"
         >
           <div 
-            class="result-area p-6 break-all relative group font-mono text-sm leading-relaxed"
+            class="result-area p-6 break-words relative group font-mono text-sm leading-6 whitespace-pre-wrap overflow-auto"
             @click="copyResult"
           >
             <div class="relative z-10">{{ result }}</div>
@@ -299,7 +325,7 @@
           <span>转换结果</span>
         </div>
         <div 
-          class="bg-gradient-to-br from-secondary-50/80 to-primary-50/80 backdrop-blur-sm border border-secondary-200/50 rounded-xl p-4 font-mono text-sm leading-relaxed cursor-pointer hover:shadow-md transition-all duration-300"
+          class="bg-gradient-to-br from-secondary-50/80 to-primary-50/80 backdrop-blur-sm border border-secondary-200/50 rounded-xl p-4 font-mono text-sm leading-relaxed cursor-pointer hover:shadow-md transition-all duration-300 whitespace-pre-wrap"
           @click="copyResult"
         >
           <div class="line-clamp-3">{{ result }}</div>
@@ -442,6 +468,20 @@ function isValidUrl(text: string): boolean {
   const urlPattern = /^(https?:\/\/|www\.|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i
   const schemePattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:/
   return urlPattern.test(text) || schemePattern.test(text) || text.includes('://') || text.includes('?') || text.includes('#')
+}
+
+// 检查是否为有效JSON
+function isValidJson(text: string): boolean {
+  if (!text || !text.trim()) {
+    return false
+  }
+  
+  try {
+    JSON.parse(text.trim())
+    return true
+  } catch {
+    return false
+  }
 }
 
 // 解析链接
@@ -594,6 +634,56 @@ function handleHexToDec() {
   } catch (error) {
     result.value = '转换失败：请输入有效的16进制数字（可带0x前缀），多个数字可用空格或逗号分隔'
     showLinkResult.value = false
+  }
+}
+
+// JSON 格式化
+function handleFormatJson() {
+  try {
+    // 移除前后空白字符
+    const trimmedInput = inputText.value.trim()
+    if (!trimmedInput) {
+      result.value = '格式化失败：输入为空'
+      showLinkResult.value = false
+      return
+    }
+
+    // 尝试解析 JSON
+    const jsonObject = JSON.parse(trimmedInput)
+    
+    // 格式化输出，使用2个空格缩进
+    result.value = JSON.stringify(jsonObject, null, 2)
+    showLinkResult.value = false
+    ElMessage.success('JSON 格式化成功')
+  } catch (error) {
+    result.value = 'JSON 格式化失败：输入的不是有效的 JSON 格式\n\n错误详情：' + (error as Error).message
+    showLinkResult.value = false
+    ElMessage.error('JSON 格式化失败，请检查输入格式')
+  }
+}
+
+// JSON 压缩
+function handleCompressJson() {
+  try {
+    // 移除前后空白字符
+    const trimmedInput = inputText.value.trim()
+    if (!trimmedInput) {
+      result.value = '压缩失败：输入为空'
+      showLinkResult.value = false
+      return
+    }
+
+    // 尝试解析 JSON
+    const jsonObject = JSON.parse(trimmedInput)
+    
+    // 压缩输出，不使用空格和换行
+    result.value = JSON.stringify(jsonObject)
+    showLinkResult.value = false
+    ElMessage.success('JSON 压缩成功')
+  } catch (error) {
+    result.value = 'JSON 压缩失败：输入的不是有效的 JSON 格式\n\n错误详情：' + (error as Error).message
+    showLinkResult.value = false
+    ElMessage.error('JSON 压缩失败，请检查输入格式')
   }
 }
 </script>

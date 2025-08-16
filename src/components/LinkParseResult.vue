@@ -61,20 +61,28 @@
           :key="`query-${index}`"
           class="flex items-center gap-3 p-3 bg-gradient-to-r from-accent-50 to-white rounded-xl border border-accent-200/50 shadow-soft hover:shadow-md transition-all duration-300"
         >
-          <el-tooltip content="点击复制参数名" placement="top" :show-after="300">
+          <el-tooltip 
+            :content="hasLeadingOrTrailingSpaces(param.key) ? '⚠️ 参数名包含前后空格！点击复制' : '点击复制参数名'" 
+            placement="top" 
+            :show-after="300"
+          >
             <span 
-              class="font-mono text-sm text-accent-700 font-semibold min-w-0 flex-shrink-0 cursor-pointer hover:bg-accent-100 px-2 py-1 rounded transition-all duration-300"
+              :class="getParamClass(param.key, true)"
               @click="copyValue(param.key)"
             >
-              {{ param.key }}:
+              <span :class="getParamTextClass(param.key, 'text-accent-700')">{{ param.key }}:</span>
             </span>
           </el-tooltip>
-          <el-tooltip content="点击复制此值" placement="top" :show-after="300">
+          <el-tooltip 
+            :content="hasLeadingOrTrailingSpaces(param.value) ? '⚠️ 参数值包含前后空格！点击复制' : '点击复制此值'" 
+            placement="top" 
+            :show-after="300"
+          >
             <span 
-              class="font-mono text-sm flex-1 cursor-pointer hover:bg-warning-100 px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 break-all"
+              :class="getParamClass(param.value)"
               @click="copyValue(param.value)"
             >
-              {{ param.value }}
+              <span :class="getParamTextClass(param.value)">{{ param.value }}</span>
             </span>
           </el-tooltip>
         </div>
@@ -120,20 +128,28 @@
           :key="`hash-query-${index}`"
           class="flex items-center gap-3 p-3 bg-gradient-to-r from-success-50 to-white rounded-xl border border-success-200/50 shadow-soft hover:shadow-md transition-all duration-300"
         >
-          <el-tooltip content="点击复制参数名" placement="top" :show-after="300">
+          <el-tooltip 
+            :content="hasLeadingOrTrailingSpaces(param.key) ? '⚠️ 参数名包含前后空格！点击复制' : '点击复制参数名'" 
+            placement="top" 
+            :show-after="300"
+          >
             <span 
-              class="font-mono text-sm text-success-700 font-semibold min-w-0 flex-shrink-0 cursor-pointer hover:bg-success-100 px-2 py-1 rounded transition-all duration-300"
+              :class="getParamClass(param.key, true)"
               @click="copyValue(param.key)"
             >
-              {{ param.key }}:
+              <span :class="getParamTextClass(param.key, 'text-success-700')">{{ param.key }}:</span>
             </span>
           </el-tooltip>
-          <el-tooltip content="点击复制此值" placement="top" :show-after="300">
+          <el-tooltip 
+            :content="hasLeadingOrTrailingSpaces(param.value) ? '⚠️ 参数值包含前后空格！点击复制' : '点击复制此值'" 
+            placement="top" 
+            :show-after="300"
+          >
             <span 
-              class="font-mono text-sm flex-1 cursor-pointer hover:bg-warning-100 px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 break-all"
+              :class="getParamClass(param.value)"
               @click="copyValue(param.value)"
             >
-              {{ param.value }}
+              <span :class="getParamTextClass(param.value)">{{ param.value }}</span>
             </span>
           </el-tooltip>
         </div>
@@ -246,8 +262,6 @@ function parseUrl(url: string): ParsedLinkData {
   result.isPathOnly = isPathOnly
 
   try {
-    let fullUrl = url
-    
     if (isPathOnly) {
       // 对于路径形式的URL，直接手动解析
       const [, queryPart] = url.includes('?') ? url.split('?', 2) : [url, '']
@@ -280,37 +294,40 @@ function parseUrl(url: string): ParsedLinkData {
       }
     } else {
       // 处理完整URL
-      if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('file://')) {
-        fullUrl = 'http://' + url
-      }
-
-      const urlObj = new URL(fullUrl)
-
-      // 解析 query 参数
-      urlObj.searchParams.forEach((value, key) => {
-        result.queryParams.push({ key, value })
-      })
-
-      // 处理 hash 部分
-      if (urlObj.hash) {
-        const hash = urlObj.hash.substring(1) // 移除 # 号
+      // 注意：不能直接使用 URL 对象解析查询参数，因为它会自动移除参数值的空格
+      // 我们需要手动解析查询字符串以保留空格
+      
+      const [, queryAndHashPart] = url.includes('?') ? url.split('?', 2) : [url, '']
+      
+      if (queryAndHashPart) {
+        const [queryPart, hashPart] = queryAndHashPart.includes('#') ? queryAndHashPart.split('#', 2) : [queryAndHashPart, '']
         
-        // 检查是否包含路由路径和参数
-        if (hash.includes('?')) {
-          const [hashPath, hashQuery] = hash.split('?', 2)
-          result.hashPath = hashPath
-          
-          // 解析 hash 中的 query 参数
-          const hashParams = new URLSearchParams(hashQuery)
-          hashParams.forEach((value, key) => {
-            result.hashQueryParams.push({ key, value })
+        // 手动解析查询参数（保留空格）
+        if (queryPart) {
+          const searchParams = new URLSearchParams(queryPart)
+          searchParams.forEach((value, key) => {
+            result.queryParams.push({ key, value })
           })
-        } else if (hash.includes('/')) {
-          // 只有路径，没有参数
-          result.hashPath = hash
-        } else {
-          // 纯 fragment
-          result.fragment = hash
+        }
+        
+        // 处理 hash 部分
+        if (hashPart) {
+          if (hashPart.includes('?')) {
+            const [hashPath, hashQuery] = hashPart.split('?', 2)
+            result.hashPath = hashPath
+            
+            // 解析 hash 中的 query 参数
+            const hashParams = new URLSearchParams(hashQuery)
+            hashParams.forEach((value, key) => {
+              result.hashQueryParams.push({ key, value })
+            })
+          } else if (hashPart.includes('/')) {
+            // 只有路径，没有参数
+            result.hashPath = hashPart
+          } else {
+            // 纯 fragment
+            result.fragment = hashPart
+          }
         }
       }
     }
@@ -327,6 +344,29 @@ function parseUrl(url: string): ParsedLinkData {
 // 获取总参数数量
 function getTotalParams(): number {
   return parsedData.value.queryParams.length + parsedData.value.hashQueryParams.length
+}
+
+// 检测字符串前后是否有空格
+function hasLeadingOrTrailingSpaces(value: string): boolean {
+  return value !== value.trim()
+}
+
+// 获取参数的样式类
+function getParamClass(value: string, isKey: boolean = false): string {
+  const baseClass = 'font-mono text-sm cursor-pointer px-3 py-2 rounded-lg transition-all duration-300 border border-transparent'
+  const hoverClass = 'hover:bg-warning-100 hover:border-warning-300'
+  const warningClass = hasLeadingOrTrailingSpaces(value) ? 'text-red-600 bg-red-50 border-red-200' : ''
+  
+  if (isKey) {
+    return `${baseClass} font-semibold min-w-0 flex-shrink-0 ${warningClass} ${hoverClass}`
+  } else {
+    return `${baseClass} flex-1 break-all ${warningClass} ${hoverClass}`
+  }
+}
+
+// 获取参数的颜色类（用于文本颜色）
+function getParamTextClass(value: string, defaultColor: string = ''): string {
+  return hasLeadingOrTrailingSpaces(value) ? 'text-red-600' : defaultColor
 }
 
 
