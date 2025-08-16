@@ -1,5 +1,16 @@
 <template>
-  <div class="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-md">
+  <div class="max-w-6xl mx-auto p-8 bg-white rounded-lg shadow-md relative">
+    <!-- 关闭按钮 -->
+    <div
+      v-if="showCloseButton"
+      class="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer flex items-center justify-center shadow-lg transition-colors z-10"
+      @click="$emit('remove')"
+    >
+      <el-icon class="text-white text-lg">
+        <close />
+      </el-icon>
+    </div>
+
     <div class="space-y-6">
       <!-- 输入框 -->
       <div>
@@ -99,6 +110,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Close } from '@element-plus/icons-vue'
+
+const props = defineProps<{
+  showCloseButton?: boolean
+}>()
+
+const emit = defineEmits<{
+  remove: []
+}>()
 
 const inputText = ref('')
 const result = ref('')
