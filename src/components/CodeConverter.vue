@@ -12,20 +12,30 @@
     </div>
 
     <div class="space-y-6">
-      <!-- 输入框 -->
-      <div>
-        <el-input
-          v-model="inputText"
-          type="textarea"
-          :rows="4"
-          placeholder="请输入要转换的文本"
-          class="w-full text-base"
-          :autosize="{ minRows: 4, maxRows: 10 }"
+      <!-- 输入框和二维码区域 -->
+      <div class="flex gap-6 items-start">
+        <div class="flex-1">
+          <el-input
+            v-model="inputText"
+            type="textarea"
+            :rows="6"
+            placeholder="请输入要转换的文本"
+            class="w-full text-base"
+            :autosize="{ minRows: 6, maxRows: 12 }"
+            :disabled="showQRCode"
+          />
+        </div>
+        
+        <!-- 二维码组件 -->
+        <QRCodeGenerator
+          :text="inputText"
+          :show="showQRCode"
+          @cancel="handleCancelQRCode"
         />
       </div>
 
       <!-- 按钮组 -->
-      <div class="flex flex-wrap gap-3 justify-center">
+      <div v-if="!showQRCode" class="flex flex-wrap gap-3 justify-center">
         <el-button
           type="danger"
           :disabled="!inputText"
@@ -130,6 +140,21 @@
         >
           16进制转10进制
         </el-button>
+
+        <el-button
+          type="primary"
+          :disabled="!inputText"
+          @click="handleGenerateQRCode"
+          size="large"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
+        >
+          生成二维码
+        </el-button>
       </div>
 
       <!-- 结果显示 -->
@@ -164,6 +189,7 @@
 import { ref } from 'vue'
 import { Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
+import QRCodeGenerator from './QRCodeGenerator.vue'
 
 const props = defineProps<{
   showCloseButton?: boolean
@@ -176,6 +202,17 @@ const emit = defineEmits<{
 const inputText = ref('')
 const result = ref('')
 const showCopySuccess = ref(false)
+const showQRCode = ref(false)
+
+// 生成二维码
+function handleGenerateQRCode() {
+  showQRCode.value = true
+}
+
+// 取消二维码
+function handleCancelQRCode() {
+  showQRCode.value = false
+}
 
 // 复制结果
 async function copyResult() {
@@ -194,6 +231,7 @@ async function copyResult() {
 function handleReset() {
   inputText.value = ''
   result.value = ''
+  showQRCode.value = false
 }
 
 // URL 编码
