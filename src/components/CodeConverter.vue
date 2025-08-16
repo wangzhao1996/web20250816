@@ -31,7 +31,12 @@
           :disabled="!inputText"
           @click="handleReset"
           size="large"
-          class="!bg-red-500 !text-white hover:!bg-red-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-red-500 transition-all',
+            inputText 
+              ? '!bg-red-500 !text-white hover:!bg-red-600'
+              : '!bg-transparent !text-red-500'
+          ]"
         >
           重置
         </el-button>
@@ -41,7 +46,12 @@
           :disabled="!inputText"
           @click="handleEncode"
           size="large"
-          class="!bg-blue-500 !text-white hover:!bg-blue-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
         >
           encode编码
         </el-button>
@@ -51,7 +61,12 @@
           :disabled="!inputText"
           @click="handleDecode"
           size="large"
-          class="!bg-blue-500 !text-white hover:!bg-blue-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
         >
           decode解码
         </el-button>
@@ -61,9 +76,14 @@
           :disabled="!inputText"
           @click="handleToHex"
           size="large"
-          class="!bg-blue-500 !text-white hover:!bg-blue-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
         >
-          16进制编码
+          文本转16进制
         </el-button>
         
         <el-button
@@ -71,9 +91,14 @@
           :disabled="!inputText"
           @click="handleFromHex"
           size="large"
-          class="!bg-blue-500 !text-white hover:!bg-blue-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
         >
-          16进制解码
+          16进制转文本
         </el-button>
 
         <el-button
@@ -81,7 +106,12 @@
           :disabled="!inputText"
           @click="handleDecToHex"
           size="large"
-          class="!bg-blue-500 !text-white hover:!bg-blue-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
         >
           10进制转16进制
         </el-button>
@@ -91,7 +121,12 @@
           :disabled="!inputText"
           @click="handleHexToDec"
           size="large"
-          class="!bg-blue-500 !text-white hover:!bg-blue-600 disabled:!bg-gray-200"
+          :class="[
+            '!border-blue-500 transition-all',
+            inputText 
+              ? '!bg-blue-500 !text-white hover:!bg-blue-600'
+              : '!bg-transparent !text-blue-500'
+          ]"
         >
           16进制转10进制
         </el-button>
@@ -100,9 +135,26 @@
       <!-- 结果显示 -->
       <div v-if="result" class="mt-6">
         <div class="font-medium text-gray-700 mb-3">转换结果：</div>
-        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200 break-all">
-          {{ result }}
-        </div>
+        <el-tooltip
+          content="点击复制结果"
+          placement="top"
+          :show-after="500"
+        >
+          <div 
+            class="p-6 bg-gray-50 rounded-lg border border-gray-200 break-all cursor-pointer hover:bg-gray-100 transition-colors relative group"
+            @click="copyResult"
+          >
+            {{ result }}
+            <transition name="fade">
+              <div
+                v-if="showCopySuccess"
+                class="absolute top-2 right-2 text-sm text-green-600 bg-green-50 px-2 py-1 rounded"
+              >
+                已复制
+              </div>
+            </transition>
+          </div>
+        </el-tooltip>
       </div>
     </div>
   </div>
@@ -111,6 +163,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Close } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps<{
   showCloseButton?: boolean
@@ -122,6 +175,20 @@ const emit = defineEmits<{
 
 const inputText = ref('')
 const result = ref('')
+const showCopySuccess = ref(false)
+
+// 复制结果
+async function copyResult() {
+  try {
+    await navigator.clipboard.writeText(result.value)
+    showCopySuccess.value = true
+    setTimeout(() => {
+      showCopySuccess.value = false
+    }, 2000)
+  } catch (error) {
+    ElMessage.error('复制失败，请手动复制')
+  }
+}
 
 // 重置功能
 function handleReset() {
@@ -188,10 +255,7 @@ function handleDecToHex() {
     }
 
     result.value = numbers
-      .map(n => {
-        const hex = parseInt(n, 10).toString(16).toUpperCase()
-        return `${n} -> 0x${hex}`
-      })
+      .map(n => parseInt(n, 10).toString(16).toUpperCase())
       .join('\n')
   } catch (error) {
     result.value = '转换失败：请输入有效的十进制数字，多个数字可用空格或逗号分隔'
@@ -213,10 +277,7 @@ function handleHexToDec() {
     }
 
     result.value = numbers
-      .map(n => {
-        const dec = parseInt(n, 16)
-        return `0x${n.toUpperCase()} -> ${dec}`
-      })
+      .map(n => parseInt(n, 16).toString())
       .join('\n')
   } catch (error) {
     result.value = '转换失败：请输入有效的16进制数字（可带0x前缀），多个数字可用空格或逗号分隔'
@@ -234,6 +295,15 @@ function handleHexToDec() {
 
 .el-button {
   min-width: 120px;
-  border: none !important;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
