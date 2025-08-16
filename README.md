@@ -1,5 +1,113 @@
-# Vue 3 + TypeScript + Vite
+# 编码转换工具
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+这是一个基于 Vue 3 + TypeScript + Vite 开发的编码转换工具，提供多种编码转换功能。
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## 技术栈
+
+- Vue 3
+- TypeScript
+- Vite
+- Vue Router
+- Pinia
+- Element Plus
+- Tailwind CSS
+
+## 功能特性
+
+该工具提供以下编码转换功能：
+
+1. URL 编码/解码
+   - `encode编码`：使用 `encodeURIComponent` 进行 URL 编码
+   - `decode解码`：使用 `decodeURIComponent` 进行 URL 解码
+
+2. 文本与十六进制转换
+   - `16进制编码`：将文本转换为十六进制字符串
+   - `16进制解码`：将十六进制字符串转换回文本
+
+3. 进制转换
+   - `10进制转16进制`：将十进制数转换为十六进制（支持批量转换）
+   - `16进制转10进制`：将十六进制数转换为十进制（支持批量转换）
+
+### 特点
+
+- 支持批量转换：进制转换功能支持多个数字同时转换（使用空格或逗号分隔）
+- 实时验证：所有输入都有合法性验证
+- 友好的错误提示：转换失败时会显示具体原因
+- 响应式设计：适配不同屏幕尺寸
+- 简洁的用户界面：使用 Element Plus 组件库，提供现代化的 UI 体验
+
+## 开发指南
+
+### 环境要求
+
+- Node.js >= 16.0.0
+- npm >= 7.0.0
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 开发服务器
+
+```bash
+npm run dev
+```
+
+### 构建项目
+
+```bash
+npm run build
+```
+
+### 代码检查
+
+```bash
+npm run lint
+```
+
+## 使用说明
+
+1. URL 编码/解码
+   - 输入需要编码/解码的文本
+   - 点击对应的按钮进行转换
+   - 结果会显示在下方
+
+2. 文本与十六进制转换
+   - 输入普通文本或十六进制字符串
+   - 点击对应的按钮进行转换
+   - 十六进制编码会将文本中的每个字符转换为其 ASCII 码的十六进制表示
+   - 十六进制解码会将每两个十六进制字符解析为一个文本字符
+
+3. 进制转换
+   - 支持输入多个数字，用空格或逗号分隔
+   - 十六进制数可以带 "0x" 前缀
+   - 转换结果会显示原值和转换后的值的对应关系
+
+## 项目结构
+
+```
+src/
+  ├── assets/        # 静态资源
+  ├── components/    # 可复用组件
+  ├── composables/   # 组合式函数
+  ├── layouts/       # 布局组件
+  ├── pages/         # 页面组件
+  ├── router/        # 路由配置
+  ├── stores/        # Pinia 状态管理
+  ├── types/         # TypeScript 类型定义
+  └── utils/         # 工具函数
+```
+
+## 贡献指南
+
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的改动 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启一个 Pull Request
+
+## 许可证
+
+[MIT](LICENSE)
