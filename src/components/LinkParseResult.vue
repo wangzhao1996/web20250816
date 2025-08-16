@@ -1,12 +1,19 @@
 <template>
   <div class="space-y-4">
     <!-- 原始链接 -->
-    <div class="space-y-2">
-      <div class="font-medium text-gray-700">原始链接：</div>
-      <div class="p-3 bg-slate-50 rounded border border-slate-200">
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 font-semibold text-secondary-700">
+        <div class="w-5 h-5 bg-gradient-to-r from-secondary-500 to-secondary-600 rounded-lg flex items-center justify-center">
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.102m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+        </div>
+        <span>原始链接</span>
+      </div>
+      <div class="bg-gradient-to-r from-secondary-50 to-secondary-100 rounded-xl border border-secondary-200/50 p-4 shadow-soft">
         <el-tooltip content="点击复制原始链接" placement="top" :show-after="300">
           <div 
-            class="font-mono text-sm break-all cursor-pointer hover:bg-yellow-100 px-2 py-1 rounded transition-colors"
+            class="font-mono text-sm break-all cursor-pointer hover:bg-warning-100 p-3 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300"
             @click="copyValue(url)"
           >
             {{ url }}
@@ -16,26 +23,55 @@
     </div>
 
     <!-- 基础信息 -->
-    <div class="space-y-2">
-      <div class="font-medium text-gray-700">{{ parsedData.isPathOnly ? '基础路径' : '基础链接' }}：</div>
-      <div class="p-3 bg-blue-50 rounded border border-blue-200">
-        <span class="font-mono text-sm break-all">{{ parsedData.baseUrl }}</span>
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 font-semibold text-secondary-700">
+        <div class="w-5 h-5 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <span>{{ parsedData.isPathOnly ? '基础路径' : '基础链接' }}</span>
+      </div>
+      <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-xl border border-primary-200/50 p-4 shadow-soft">
+        <el-tooltip content="点击复制基础链接" placement="top" :show-after="300">
+          <span 
+            class="font-mono text-sm break-all text-primary-800 cursor-pointer hover:bg-warning-100 p-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 block"
+            @click="copyValue(parsedData.baseUrl)"
+          >
+            {{ parsedData.baseUrl }}
+          </span>
+        </el-tooltip>
       </div>
     </div>
 
     <!-- Query 参数 -->
-    <div v-if="parsedData.queryParams.length > 0" class="space-y-2">
-      <div class="font-medium text-gray-700">Query 参数：</div>
-      <div class="space-y-1">
+    <div v-if="parsedData.queryParams.length > 0" class="space-y-3">
+      <div class="flex items-center gap-2 font-semibold text-secondary-700">
+        <div class="w-5 h-5 bg-gradient-to-r from-accent-500 to-accent-600 rounded-lg flex items-center justify-center">
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <span>Query 参数</span>
+        <span class="px-2 py-0.5 bg-accent-100 text-accent-700 rounded-full text-xs font-medium">{{ parsedData.queryParams.length }}</span>
+      </div>
+      <div class="space-y-2">
         <div 
           v-for="(param, index) in parsedData.queryParams" 
           :key="`query-${index}`"
-          class="flex items-center gap-2 p-2 bg-gray-50 rounded border"
+          class="flex items-center gap-3 p-3 bg-gradient-to-r from-accent-50 to-white rounded-xl border border-accent-200/50 shadow-soft hover:shadow-md transition-all duration-300"
         >
-          <span class="font-mono text-sm text-blue-600 font-medium">{{ param.key }}:</span>
+          <el-tooltip content="点击复制参数名" placement="top" :show-after="300">
+            <span 
+              class="font-mono text-sm text-accent-700 font-semibold min-w-0 flex-shrink-0 cursor-pointer hover:bg-accent-100 px-2 py-1 rounded transition-all duration-300"
+              @click="copyValue(param.key)"
+            >
+              {{ param.key }}:
+            </span>
+          </el-tooltip>
           <el-tooltip content="点击复制此值" placement="top" :show-after="300">
             <span 
-              class="font-mono text-sm flex-1 cursor-pointer hover:bg-yellow-100 px-2 py-1 rounded transition-colors"
+              class="font-mono text-sm flex-1 cursor-pointer hover:bg-warning-100 px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 break-all"
               @click="copyValue(param.value)"
             >
               {{ param.value }}
@@ -46,26 +82,55 @@
     </div>
 
     <!-- Hash 路径 -->
-    <div v-if="parsedData.hashPath" class="space-y-2">
-      <div class="font-medium text-gray-700">Hash 路径：</div>
-      <div class="p-3 bg-green-50 rounded border border-green-200">
-        <span class="font-mono text-sm break-all">{{ parsedData.hashPath }}</span>
+    <div v-if="parsedData.hashPath" class="space-y-3">
+      <div class="flex items-center gap-2 font-semibold text-secondary-700">
+        <div class="w-5 h-5 bg-gradient-to-r from-success-500 to-success-600 rounded-lg flex items-center justify-center">
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 0l4 16M6 9h14M4 15h14"></path>
+          </svg>
+        </div>
+        <span>Hash 路径</span>
+      </div>
+      <div class="bg-gradient-to-r from-success-50 to-success-100 rounded-xl border border-success-200/50 p-4 shadow-soft">
+        <el-tooltip content="点击复制Hash路径" placement="top" :show-after="300">
+          <span 
+            class="font-mono text-sm break-all text-success-800 cursor-pointer hover:bg-warning-100 p-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 block"
+            @click="copyValue(parsedData.hashPath)"
+          >
+            {{ parsedData.hashPath }}
+          </span>
+        </el-tooltip>
       </div>
     </div>
 
     <!-- Hash Query 参数 -->
-    <div v-if="parsedData.hashQueryParams.length > 0" class="space-y-2">
-      <div class="font-medium text-gray-700">Hash Query 参数：</div>
-      <div class="space-y-1">
+    <div v-if="parsedData.hashQueryParams.length > 0" class="space-y-3">
+      <div class="flex items-center gap-2 font-semibold text-secondary-700">
+        <div class="w-5 h-5 bg-gradient-to-r from-success-500 to-success-600 rounded-lg flex items-center justify-center">
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 0l4 16M6 9h14M4 15h14"></path>
+          </svg>
+        </div>
+        <span>Hash Query 参数</span>
+        <span class="px-2 py-0.5 bg-success-100 text-success-700 rounded-full text-xs font-medium">{{ parsedData.hashQueryParams.length }}</span>
+      </div>
+      <div class="space-y-2">
         <div 
           v-for="(param, index) in parsedData.hashQueryParams" 
           :key="`hash-query-${index}`"
-          class="flex items-center gap-2 p-2 bg-gray-50 rounded border"
+          class="flex items-center gap-3 p-3 bg-gradient-to-r from-success-50 to-white rounded-xl border border-success-200/50 shadow-soft hover:shadow-md transition-all duration-300"
         >
-          <span class="font-mono text-sm text-green-600 font-medium">{{ param.key }}:</span>
+          <el-tooltip content="点击复制参数名" placement="top" :show-after="300">
+            <span 
+              class="font-mono text-sm text-success-700 font-semibold min-w-0 flex-shrink-0 cursor-pointer hover:bg-success-100 px-2 py-1 rounded transition-all duration-300"
+              @click="copyValue(param.key)"
+            >
+              {{ param.key }}:
+            </span>
+          </el-tooltip>
           <el-tooltip content="点击复制此值" placement="top" :show-after="300">
             <span 
-              class="font-mono text-sm flex-1 cursor-pointer hover:bg-yellow-100 px-2 py-1 rounded transition-colors"
+              class="font-mono text-sm flex-1 cursor-pointer hover:bg-warning-100 px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 break-all"
               @click="copyValue(param.value)"
             >
               {{ param.value }}
@@ -76,12 +141,19 @@
     </div>
 
     <!-- Fragment -->
-    <div v-if="parsedData.fragment" class="space-y-2">
-      <div class="font-medium text-gray-700">Fragment：</div>
-      <div class="p-3 bg-purple-50 rounded border border-purple-200">
+    <div v-if="parsedData.fragment" class="space-y-3">
+      <div class="flex items-center gap-2 font-semibold text-secondary-700">
+        <div class="w-5 h-5 bg-gradient-to-r from-accent-500 to-accent-600 rounded-lg flex items-center justify-center">
+          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <span>Fragment</span>
+      </div>
+      <div class="bg-gradient-to-r from-accent-50 to-accent-100 rounded-xl border border-accent-200/50 p-4 shadow-soft">
         <el-tooltip content="点击复制此值" placement="top" :show-after="300">
           <span 
-            class="font-mono text-sm break-all cursor-pointer hover:bg-yellow-100 px-2 py-1 rounded transition-colors"
+            class="font-mono text-sm break-all cursor-pointer hover:bg-warning-100 px-3 py-2 rounded-lg transition-all duration-300 border border-transparent hover:border-warning-300 text-accent-800"
             @click="copyValue(parsedData.fragment)"
           >
             {{ parsedData.fragment }}
@@ -91,24 +163,31 @@
     </div>
 
     <!-- 解析统计 -->
-    <div class="text-sm text-gray-500 bg-gray-50 p-3 rounded">
-      <div>
-        共解析：
-        <span class="font-medium">{{ getTotalParams() }}</span> 个参数
-        <span v-if="parsedData.hashPath">，包含 Hash 路由</span>
-        <span v-if="parsedData.fragment">，包含 Fragment</span>
+    <div class="bg-gradient-to-r from-secondary-50 to-secondary-100 p-4 rounded-xl border border-secondary-200/50 shadow-soft">
+      <div class="flex items-center gap-2 text-sm text-secondary-600">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        <span>共解析：</span>
+        <span class="font-semibold text-secondary-700">{{ getTotalParams() }}</span>
+        <span>个参数</span>
+        <span v-if="parsedData.hashPath" class="px-2 py-0.5 bg-success-100 text-success-700 rounded-full text-xs font-medium ml-2">包含 Hash 路由</span>
+        <span v-if="parsedData.fragment" class="px-2 py-0.5 bg-accent-100 text-accent-700 rounded-full text-xs font-medium ml-1">包含 Fragment</span>
       </div>
     </div>
 
 
 
     <!-- 复制成功提示 -->
-    <transition name="fade">
+    <transition name="slide-down">
       <div
         v-if="showCopySuccess"
-        class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50"
+        class="fixed top-6 right-6 bg-gradient-to-r from-success-500 to-success-600 text-white px-4 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 animate-bounce-in"
       >
-        已复制: {{ copiedValue }}
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span class="font-medium">已复制: {{ copiedValue }}</span>
       </div>
     </transition>
   </div>
@@ -171,7 +250,7 @@ function parseUrl(url: string): ParsedLinkData {
     
     if (isPathOnly) {
       // 对于路径形式的URL，直接手动解析
-      const [pathPart, queryPart] = url.includes('?') ? url.split('?', 2) : [url, '']
+      const [, queryPart] = url.includes('?') ? url.split('?', 2) : [url, '']
       
       // 解析查询参数
       if (queryPart) {
@@ -270,11 +349,53 @@ async function copyValue(value: string) {
 <style scoped>
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+  transform: translateY(4px);
+}
+
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.98);
+}
+
+/* 悬停效果增强 */
+.cursor-pointer:hover {
+  transform: translateY(-1px);
+}
+
+/* 参数行动画 */
+.space-y-2 > div {
+  animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 渐变边框悬停效果 */
+.hover\:border-warning-300:hover {
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
 }
 </style>

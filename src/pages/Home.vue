@@ -1,49 +1,142 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <main class="container mx-auto px-4 py-8">
-      <h1 class="text-4xl font-bold text-center text-gray-900 mb-8">
-        编码转换工具
-      </h1>
-      
-      <div class="space-y-8">
-        <!-- 现有的转换器列表 -->
-        <code-converter
-          v-for="(_, index) in converters"
-          :key="index"
-          :show-close-button="index > 0"
-          @remove="removeConverter(index)"
-        />
+  <div class="min-h-screen overflow-x-hidden">
+    <!-- 背景装饰 -->
+    <div class="fixed inset-0 -z-10">
+      <!-- 渐变圆圈装饰 -->
+      <div class="absolute top-20 left-10 w-72 h-72 bg-primary-300/20 rounded-full blur-3xl animate-pulse-soft"></div>
+      <div class="absolute top-40 right-16 w-96 h-96 bg-accent-300/15 rounded-full blur-3xl animate-pulse-soft" style="animation-delay: 1s;"></div>
+      <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-success-300/10 rounded-full blur-3xl animate-pulse-soft" style="animation-delay: 2s;"></div>
+    </div>
+
+    <main class="container mx-auto px-4 py-12 relative">
+      <!-- 页面标题区域 -->
+      <div class="text-center mb-16 animate-fade-in">
+        <div class="inline-flex items-center gap-4 mb-6">
+          <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg animate-float">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+            </svg>
+          </div>
+          <h1 class="text-5xl md:text-6xl font-bold title-gradient">
+            编码转换工具
+          </h1>
+        </div>
+        <p class="text-xl text-secondary-600 max-w-2xl mx-auto leading-relaxed">
+          功能强大的多合一编码转换平台，支持 URL 编码、进制转换、二维码生成解析、链接解析等丰富功能
+        </p>
         
-        <!-- 添加新转换器的按钮 -->
-        <div class="max-w-6xl mx-auto">
-          <el-button
-            type="success"
-            size="large"
-            class="w-full !bg-green-500 hover:!bg-green-600 !text-white !border-none !h-16 !text-lg"
-            @click="addConverter"
-          >
-            <div class="flex items-center justify-center gap-2">
-              <el-icon class="text-2xl">
-                <plus />
-              </el-icon>
-              <span>添加新的转换器</span>
-            </div>
-          </el-button>
+        <!-- 功能特性标签 -->
+        <div class="flex flex-wrap justify-center gap-3 mt-8">
+          <span class="px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">URL 编码</span>
+          <span class="px-4 py-2 bg-accent-100 text-accent-700 rounded-full text-sm font-medium">进制转换</span>
+          <span class="px-4 py-2 bg-success-100 text-success-700 rounded-full text-sm font-medium">二维码工具</span>
+          <span class="px-4 py-2 bg-warning-100 text-warning-700 rounded-full text-sm font-medium">链接解析</span>
         </div>
       </div>
+      
+      <!-- 转换器列表 -->
+      <div class="space-y-12">
+        <div 
+          v-for="(_, index) in converters"
+          :key="index"
+          class="animate-slide-up"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+          <code-converter
+            :ref="el => { if (el) converterRefs[index] = el }"
+            :show-close-button="index === converters.length - 1 && converters.length > 1"
+            @remove="removeConverter(index)"
+          />
+        </div>
+        
+        <!-- 添加新转换器的按钮 -->
+        <div class="max-w-6xl mx-auto animate-slide-up" :style="{ animationDelay: `${converters.length * 0.1}s` }">
+          <button
+            @click="addConverter"
+            class="group w-full bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 
+                   text-white font-medium px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl
+                   transform hover:-translate-y-1 transition-all duration-300 ease-out
+                   border-0 focus:ring-4 focus:ring-success-200 relative overflow-hidden"
+          >
+            <!-- 按钮背景动画 -->
+            <div class="absolute inset-0 bg-gradient-to-r from-success-400 to-success-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            <div class="relative flex items-center justify-center gap-3">
+              <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
+                <el-icon class="text-2xl">
+                  <plus />
+                </el-icon>
+              </div>
+              <span class="text-xl font-semibold">添加新的转换器</span>
+            </div>
+            
+            <!-- 装饰性光效 -->
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 页脚信息 -->
+      <footer class="text-center mt-20 text-secondary-500 text-sm">
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd"></path>
+          </svg>
+          <span>基于 Vue 3 + TypeScript + Tailwind CSS 构建</span>
+        </div>
+        <p>&copy; 2024 编码转换工具 - 让编码转换变得简单高效</p>
+      </footer>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import CodeConverter from '@/components/CodeConverter.vue'
 
 const converters = ref([1]) // 初始化一个转换器
+const converterRefs = ref<any[]>([]) // 存储转换器组件的引用
 
-function addConverter() {
+async function addConverter() {
   converters.value.push(1)
+  
+  // 等待DOM更新完成
+  await nextTick()
+  
+  // 滚动到页面底部
+  window.scrollTo({
+    top: document.documentElement.scrollHeight,
+    behavior: 'smooth'
+  })
+  
+  // 等待滚动动画完成后再聚焦文本框
+  setTimeout(() => {
+    focusLatestConverter()
+  }, 800) // 给滚动动画留出时间
+}
+
+function focusLatestConverter() {
+  try {
+    // 尝试通过组件引用调用聚焦方法
+    const lastConverterIndex = converters.value.length - 1
+    const lastConverter = converterRefs.value[lastConverterIndex]
+    
+    if (lastConverter && typeof lastConverter.focusTextarea === 'function') {
+      lastConverter.focusTextarea()
+      return
+    }
+    
+    // 备用方案：直接查找DOM元素
+    const textareas = document.querySelectorAll('.el-textarea__inner')
+    const lastTextarea = textareas[textareas.length - 1] as HTMLTextAreaElement
+    if (lastTextarea) {
+      lastTextarea.focus()
+      lastTextarea.select()
+    }
+  } catch (error) {
+    console.warn('无法聚焦到文本框:', error)
+  }
 }
 
 function removeConverter(index: number) {
