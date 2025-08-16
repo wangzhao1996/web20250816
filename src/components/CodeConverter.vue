@@ -12,17 +12,27 @@
     </div>
 
     <div class="space-y-6">
-      <!-- 输入框和二维码区域 -->
+      <!-- 输入框、图片预览和二维码区域 -->
       <div class="flex gap-6 items-start">
+        <!-- 图片预览区域 -->
+        <ImagePreview
+          :image-url="pastedImageUrl"
+          :show="showPastedImage"
+          :file-name="pastedImageName"
+          :file-size="pastedImageSize"
+        />
+
         <div class="flex-1">
           <el-input
+            ref="textareaRef"
             v-model="inputText"
             type="textarea"
             :rows="6"
-            placeholder="请输入要转换的文本"
+            placeholder="请输入要转换的文本（或粘贴图片进行二维码解析）"
             class="w-full text-base"
             :autosize="{ minRows: 6, maxRows: 12 }"
-            :disabled="showQRCode"
+            :disabled="showQRCode || showPastedImage"
+            @paste="handlePaste"
           />
         </div>
         
@@ -38,12 +48,12 @@
       <div v-if="!showQRCode" class="flex flex-wrap gap-3 justify-center">
         <el-button
           type="danger"
-          :disabled="!inputText"
+          :disabled="!inputText && !showPastedImage"
           @click="handleReset"
           size="large"
           :class="[
             '!border-red-500 transition-all',
-            inputText 
+            (inputText || showPastedImage)
               ? '!bg-red-500 !text-white hover:!bg-red-600'
               : '!bg-transparent !text-red-500'
           ]"
@@ -155,6 +165,21 @@
         >
           生成二维码
         </el-button>
+
+        <el-button
+          type="success"
+          :disabled="!showPastedImage"
+          @click="handleParseQRCode"
+          size="large"
+          :class="[
+            '!border-green-500 transition-all',
+            showPastedImage 
+              ? '!bg-green-500 !text-white hover:!bg-green-600'
+              : '!bg-transparent !text-green-500'
+          ]"
+        >
+          解析二维码
+        </el-button>
       </div>
 
       <!-- 结果显示 -->
@@ -190,6 +215,8 @@ import { ref } from 'vue'
 import { Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import QRCodeGenerator from './QRCodeGenerator.vue'
+import ImagePreview from './ImagePreview.vue'
+import QrScanner from 'qr-scanner'
 
 const props = defineProps<{
   showCloseButton?: boolean
@@ -203,6 +230,52 @@ const inputText = ref('')
 const result = ref('')
 const showCopySuccess = ref(false)
 const showQRCode = ref(false)
+const showPastedImage = ref(false)
+const pastedImageUrl = ref('')
+const pastedImageName = ref('')
+const pastedImageSize = ref(0)
+const pastedImageFile = ref<File | null>(null)
+const textareaRef = ref()
+
+// 处理粘贴事件
+async function handlePaste(event: ClipboardEvent) {
+  const items = event.clipboardData?.items
+  if (!items) return
+
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      event.preventDefault()
+      const file = item.getAsFile()
+      if (file) {
+        pastedImageFile.value = file
+        pastedImageName.value = file.name || `image.${file.type.split('/')[1]}`
+        pastedImageSize.value = file.size
+        pastedImageUrl.value = URL.createObjectURL(file)
+        showPastedImage.value = true
+        ElMessage.success('图片已粘贴，可以点击"解析二维码"按钮进行解析')
+      }
+      break
+    }
+  }
+}
+
+// 解析二维码
+async function handleParseQRCode() {
+  if (!pastedImageFile.value) {
+    ElMessage.error('没有可解析的图片')
+    return
+  }
+
+  try {
+    const qrResult = await QrScanner.scanImage(pastedImageFile.value, {
+      returnDetailedScanResult: true
+    })
+    result.value = qrResult.data
+    ElMessage.success('二维码解析成功')
+  } catch (error) {
+    ElMessage.error('二维码解析失败，请确保图片包含有效的二维码')
+  }
+}
 
 // 生成二维码
 function handleGenerateQRCode() {
@@ -232,6 +305,14 @@ function handleReset() {
   inputText.value = ''
   result.value = ''
   showQRCode.value = false
+  showPastedImage.value = false
+  if (pastedImageUrl.value) {
+    URL.revokeObjectURL(pastedImageUrl.value)
+  }
+  pastedImageUrl.value = ''
+  pastedImageName.value = ''
+  pastedImageSize.value = 0
+  pastedImageFile.value = null
 }
 
 // URL 编码
