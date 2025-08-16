@@ -49,30 +49,58 @@
           />
         </div>
         
-        <!-- 添加新转换器的按钮 -->
+        <!-- 操作按钮区域 -->
         <div class="max-w-6xl mx-auto animate-slide-up" :style="{ animationDelay: `${converters.length * 0.1}s` }">
-          <button
-            @click="addConverter"
-            class="group w-full bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 
-                   text-white font-medium px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl
-                   transform hover:-translate-y-1 transition-all duration-300 ease-out
-                   border-0 focus:ring-4 focus:ring-success-200 relative overflow-hidden"
-          >
-            <!-- 按钮背景动画 -->
-            <div class="absolute inset-0 bg-gradient-to-r from-success-400 to-success-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            
-            <div class="relative flex items-center justify-center gap-3">
-              <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
-                <el-icon class="text-2xl">
-                  <plus />
-                </el-icon>
+          <div class="flex gap-4">
+            <!-- 清除多余转换器按钮 -->
+            <button
+              v-if="converters.length > 1"
+              @click="clearExtraConverters"
+              class="group flex-shrink-0 bg-gradient-to-r from-warning-500 to-warning-600 hover:from-warning-600 hover:to-warning-700 
+                     text-white font-medium px-6 py-6 rounded-2xl shadow-lg hover:shadow-xl
+                     transform hover:-translate-y-1 transition-all duration-300 ease-out
+                     border-0 focus:ring-4 focus:ring-warning-200 relative overflow-hidden"
+            >
+              <!-- 按钮背景动画 -->
+              <div class="absolute inset-0 bg-gradient-to-r from-warning-400 to-warning-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div class="relative flex items-center justify-center gap-3">
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <el-icon class="text-xl">
+                    <delete />
+                  </el-icon>
+                </div>
+                <span class="text-lg font-semibold whitespace-nowrap">清除多余</span>
               </div>
-              <span class="text-xl font-semibold">添加新的转换器</span>
-            </div>
+              
+              <!-- 装饰性光效 -->
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            </button>
             
-            <!-- 装饰性光效 -->
-            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-          </button>
+            <!-- 添加新转换器的按钮 -->
+            <button
+              @click="addConverter"
+              class="group flex-1 bg-gradient-to-r from-success-500 to-success-600 hover:from-success-600 hover:to-success-700 
+                     text-white font-medium px-8 py-6 rounded-2xl shadow-lg hover:shadow-xl
+                     transform hover:-translate-y-1 transition-all duration-300 ease-out
+                     border-0 focus:ring-4 focus:ring-success-200 relative overflow-hidden"
+            >
+              <!-- 按钮背景动画 -->
+              <div class="absolute inset-0 bg-gradient-to-r from-success-400 to-success-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div class="relative flex items-center justify-center gap-3">
+                <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-90 transition-transform duration-300">
+                  <el-icon class="text-2xl">
+                    <plus />
+                  </el-icon>
+                </div>
+                <span class="text-xl font-semibold">添加新的转换器</span>
+              </div>
+              
+              <!-- 装饰性光效 -->
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -92,7 +120,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Delete } from '@element-plus/icons-vue'
 import CodeConverter from '@/components/CodeConverter.vue'
 
 const converters = ref([1]) // 初始化一个转换器
@@ -141,5 +169,12 @@ function focusLatestConverter() {
 
 function removeConverter(index: number) {
   converters.value.splice(index, 1)
+}
+
+function clearExtraConverters() {
+  // 只保留第一个转换器
+  converters.value = [1]
+  // 清空组件引用数组
+  converterRefs.value = []
 }
 </script>
