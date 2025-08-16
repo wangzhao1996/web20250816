@@ -180,10 +180,33 @@
         >
           解析二维码
         </el-button>
+
+        <el-button
+          type="warning"
+          :disabled="!inputText || !isValidUrl(inputText)"
+          @click="handleParseLink"
+          size="large"
+          :class="[
+            '!border-orange-500 transition-all',
+            (inputText && isValidUrl(inputText))
+              ? '!bg-orange-500 !text-white hover:!bg-orange-600'
+              : '!bg-transparent !text-orange-500'
+          ]"
+        >
+          解析链接
+        </el-button>
       </div>
 
-      <!-- 结果显示 -->
-      <div v-if="result" class="mt-6">
+      <!-- 链接解析结果 -->
+      <div v-if="showLinkResult && linkParseResult" class="mt-6">
+        <div class="font-medium text-gray-700 mb-3">链接解析结果：</div>
+        <div class="p-6 bg-gray-50 rounded-lg border border-gray-200">
+          <LinkParseResult :url="linkParseResult" />
+        </div>
+      </div>
+
+      <!-- 普通结果显示 -->
+      <div v-if="result && !showLinkResult" class="mt-6">
         <div class="font-medium text-gray-700 mb-3">转换结果：</div>
         <el-tooltip
           content="点击复制结果"
@@ -216,6 +239,7 @@ import { Close } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import QRCodeGenerator from './QRCodeGenerator.vue'
 import ImagePreview from './ImagePreview.vue'
+import LinkParseResult from './LinkParseResult.vue'
 import QrScanner from 'qr-scanner'
 
 const props = defineProps<{
@@ -236,6 +260,8 @@ const pastedImageName = ref('')
 const pastedImageSize = ref(0)
 const pastedImageFile = ref<File | null>(null)
 const textareaRef = ref()
+const linkParseResult = ref('')
+const showLinkResult = ref(false)
 
 // 处理粘贴事件
 async function handlePaste(event: ClipboardEvent) {
@@ -271,10 +297,31 @@ async function handleParseQRCode() {
       returnDetailedScanResult: true
     })
     result.value = qrResult.data
+    showLinkResult.value = false
     ElMessage.success('二维码解析成功')
   } catch (error) {
     ElMessage.error('二维码解析失败，请确保图片包含有效的二维码')
   }
+}
+
+// 检查是否为有效URL
+function isValidUrl(text: string): boolean {
+  const urlPattern = /^(https?:\/\/|www\.|[a-zA-Z0-9-]+\.[a-zA-Z]{2,})/i
+  const schemePattern = /^[a-zA-Z][a-zA-Z0-9+.-]*:/
+  return urlPattern.test(text) || schemePattern.test(text) || text.includes('://') || text.includes('?') || text.includes('#')
+}
+
+// 解析链接
+function handleParseLink() {
+  if (!inputText.value || !isValidUrl(inputText.value)) {
+    ElMessage.error('请输入有效的链接')
+    return
+  }
+
+  linkParseResult.value = inputText.value
+  showLinkResult.value = true
+  result.value = ''
+  ElMessage.success('链接解析完成')
 }
 
 // 生成二维码
@@ -306,6 +353,8 @@ function handleReset() {
   result.value = ''
   showQRCode.value = false
   showPastedImage.value = false
+  showLinkResult.value = false
+  linkParseResult.value = ''
   if (pastedImageUrl.value) {
     URL.revokeObjectURL(pastedImageUrl.value)
   }
@@ -319,8 +368,10 @@ function handleReset() {
 function handleEncode() {
   try {
     result.value = encodeURIComponent(inputText.value)
+    showLinkResult.value = false
   } catch (error) {
     result.value = '编码失败：无效的输入'
+    showLinkResult.value = false
   }
 }
 
@@ -328,8 +379,10 @@ function handleEncode() {
 function handleDecode() {
   try {
     result.value = decodeURIComponent(inputText.value)
+    showLinkResult.value = false
   } catch (error) {
     result.value = '解码失败：无效的输入'
+    showLinkResult.value = false
   }
 }
 
@@ -340,8 +393,10 @@ function handleToHex() {
       .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
       .join('')
     result.value = hex.toUpperCase()
+    showLinkResult.value = false
   } catch (error) {
     result.value = '转换失败：无效的输入'
+    showLinkResult.value = false
   }
 }
 
@@ -356,8 +411,10 @@ function handleFromHex() {
     result.value = bytes
       .map(byte => String.fromCharCode(parseInt(byte, 16)))
       .join('')
+    showLinkResult.value = false
   } catch (error) {
     result.value = '解码失败：无效的16进制输入'
+    showLinkResult.value = false
   }
 }
 
@@ -376,8 +433,10 @@ function handleDecToHex() {
     result.value = numbers
       .map(n => parseInt(n, 10).toString(16).toUpperCase())
       .join('\n')
+    showLinkResult.value = false
   } catch (error) {
     result.value = '转换失败：请输入有效的十进制数字，多个数字可用空格或逗号分隔'
+    showLinkResult.value = false
   }
 }
 
@@ -398,8 +457,10 @@ function handleHexToDec() {
     result.value = numbers
       .map(n => parseInt(n, 16).toString())
       .join('\n')
+    showLinkResult.value = false
   } catch (error) {
     result.value = '转换失败：请输入有效的16进制数字（可带0x前缀），多个数字可用空格或逗号分隔'
+    showLinkResult.value = false
   }
 }
 </script>
