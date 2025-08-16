@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/web20250816/'),
   routes,
 })
 
