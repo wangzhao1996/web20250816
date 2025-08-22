@@ -143,6 +143,32 @@
         
         <button
           :disabled="!inputText"
+          @click="handleBase64Encode"
+          :class="[
+            'font-medium px-4 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-out border-0 focus:ring-4 text-sm',
+            inputText 
+              ? 'btn-primary'
+              : 'btn-disabled'
+          ]"
+        >
+          Base64加密
+        </button>
+
+        <button
+          :disabled="!inputText"
+          @click="handleBase64Decode"
+          :class="[
+            'font-medium px-4 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-out border-0 focus:ring-4 text-sm',
+            inputText 
+              ? 'btn-primary'
+              : 'btn-disabled'
+          ]"
+        >
+          Base64解密
+        </button>
+        
+        <button
+          :disabled="!inputText"
           @click="handleToHex"
           :class="[
             'font-medium px-4 py-3 rounded-xl shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 ease-out border-0 focus:ring-4 text-sm',
@@ -684,6 +710,54 @@ function handleCompressJson() {
     result.value = 'JSON 压缩失败：输入的不是有效的 JSON 格式\n\n错误详情：' + (error as Error).message
     showLinkResult.value = false
     ElMessage.error('JSON 压缩失败，请检查输入格式')
+  }
+}
+
+// Base64 编码（加密）
+function handleBase64Encode() {
+  try {
+    if (!inputText.value) {
+      result.value = 'Base64 编码失败：输入为空'
+      showLinkResult.value = false
+      return
+    }
+
+    // 使用 btoa 进行 Base64 编码
+    result.value = btoa(unescape(encodeURIComponent(inputText.value)))
+    showLinkResult.value = false
+    ElMessage.success('Base64 编码成功')
+  } catch (error) {
+    result.value = 'Base64 编码失败：输入包含无效字符\n\n错误详情：' + (error as Error).message
+    showLinkResult.value = false
+    ElMessage.error('Base64 编码失败，请检查输入内容')
+  }
+}
+
+// Base64 解码（解密）
+function handleBase64Decode() {
+  try {
+    if (!inputText.value) {
+      result.value = 'Base64 解码失败：输入为空'
+      showLinkResult.value = false
+      return
+    }
+
+    // 移除可能的空白字符
+    const cleanInput = inputText.value.replace(/\s/g, '')
+    
+    // 检查是否为有效的 Base64 格式
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleanInput)) {
+      throw new Error('输入不是有效的 Base64 格式')
+    }
+
+    // 使用 atob 进行 Base64 解码
+    result.value = decodeURIComponent(escape(atob(cleanInput)))
+    showLinkResult.value = false
+    ElMessage.success('Base64 解码成功')
+  } catch (error) {
+    result.value = 'Base64 解码失败：输入不是有效的 Base64 格式\n\n错误详情：' + (error as Error).message
+    showLinkResult.value = false
+    ElMessage.error('Base64 解码失败，请检查输入格式')
   }
 }
 </script>

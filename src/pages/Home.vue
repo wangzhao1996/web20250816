@@ -22,12 +22,13 @@
           </h1>
         </div>
         <p class="text-xl text-secondary-600 max-w-2xl mx-auto leading-relaxed">
-          功能强大的多合一编码转换平台，支持 URL 编码、进制转换、二维码生成解析、链接解析、JSON 处理等丰富功能
+          功能强大的多合一编码转换平台，支持 URL 编码、Base64 编码、进制转换、二维码生成解析、链接解析、JSON 处理等丰富功能
         </p>
         
         <!-- 功能特性标签 -->
         <div class="flex flex-wrap justify-center gap-3 mt-8">
           <span class="px-4 py-2 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">URL 编码</span>
+          <span class="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">Base64 编码</span>
           <span class="px-4 py-2 bg-accent-100 text-accent-700 rounded-full text-sm font-medium">进制转换</span>
           <span class="px-4 py-2 bg-success-100 text-success-700 rounded-full text-sm font-medium">二维码工具</span>
           <span class="px-4 py-2 bg-warning-100 text-warning-700 rounded-full text-sm font-medium">链接解析</span>
